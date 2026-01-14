@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+model Doctores {
+  ID_Doctor    Int       @id @default(autoincrement())
+  Nombre       String
+  Apellido     String
+  Especialidad String
+  Teléfono     String?
+  Email        String?   @unique
+
+  Ingresos     Ingresos[]
+}
+
+model Pacientes {
+  ID_Paciente         Int       @id @default(autoincrement())
+  Nombre              String
+  Apellido            String
+  Fecha_de_Nacimiento DateTime
+  Dirección           String
+  Teléfono            String?
+  Email               String?   @unique
+
+  // Relación 1:1 con Cama
+  Cama                Camas?
+
+  // Historial
+  Ingresos            Ingresos[]
+}
+
+model Camas {
+  ID_Cama        Int    @id @default(autoincrement())
+  Número_de_Cama Int    @unique
+  Tipo_de_Cama   String
+  Estado         String // disponible, ocupada, etc.
+
+  // FK única → 1:1 estricto
+  ID_Paciente    Int?   @unique
+  Paciente       Pacientes? @relation(fields: [ID_Paciente], references: [ID_Paciente])
+}
+
+model Servicios_Médicos {
+  ID_Servicio          Int     @id @default(autoincrement())
+  Nombre_del_Servicio  String
+  Descripción          String?
+  Costo                Decimal
+
+  Tratamientos         Tratamientos[]
+}
+
+model Ingresos {
+  ID_Ingreso        Int      @id @default(autoincrement())
+
+  ID_Paciente       Int
+  ID_Doctor         Int
+
+  Fecha_de_Ingreso  DateTime
+  Fecha_de_Egreso   DateTime?
+  Diagnóstico       String
+
+  Paciente          Pacientes @relation(fields: [ID_Paciente], references: [ID_Paciente])
+  Doctor            Doctores  @relation(fields: [ID_Doctor], references: [ID_Doctor])
+
+  Tratamientos      Tratamientos[]
+
+  @@index([ID_Paciente])
+  @@index([ID_Doctor])
+}
+
+model Tratamientos {
+  ID_Tratamiento       Int      @id @default(autoincrement())
+
+  ID_Ingreso           Int
+  ID_Servicio          Int
+
+  Fecha_de_Tratamiento DateTime
+  Descripción          String?
+
+  Ingreso              Ingresos          @relation(fields: [ID_Ingreso], references: [ID_Ingreso], onDelete: Cascade)
+  Servicio             Servicios_Médicos @relation(fields: [ID_Servicio], references: [ID_Servicio])
+
+  @@index([ID_Ingreso])
+  @@index([ID_Servicio])
+}
