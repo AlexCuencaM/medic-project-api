@@ -1,4 +1,4 @@
-export class    Doctores {
+export class Doctores {
   constructor(
     public readonly id: number,
     public nombre: string,

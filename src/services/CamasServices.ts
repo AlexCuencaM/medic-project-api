@@ -60,7 +60,6 @@ export class CamasServices {
         Número_de_Cama: "asc",
       },
     });
-
     return camas.map(CamasMapper.toDomain);
   }
 }
